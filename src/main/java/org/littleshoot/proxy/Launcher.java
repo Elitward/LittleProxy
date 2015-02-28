@@ -1,5 +1,8 @@
 package org.littleshoot.proxy;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpRequest;
+
 import java.io.File;
 import java.util.Arrays;
 
@@ -88,6 +91,25 @@ public class Launcher {
                 .bootstrapFromFile("./littleproxy.properties")
                 .withPort(port)
                 .withAllowLocalOnly(false);
+        
+        //add by Elitward:
+        bootstrap.withFiltersSource(new HttpFiltersSourceAdapter() {
+
+			@Override
+			public HttpFilters filterRequest(HttpRequest originalRequest) {
+				String uri = originalRequest.getUri();
+				System.out.println("Elitward: FiltersSource-uri:"+uri);  
+				return super.filterRequest(originalRequest);
+			}
+
+			@Override
+			public HttpFilters filterRequest(HttpRequest originalRequest,
+					ChannelHandlerContext ctx) {
+				String uri = originalRequest.getUri();
+				System.out.println("Elitward: FiltersSource-uri:"+uri);
+				return super.filterRequest(originalRequest, ctx);
+			}
+         });
         
         if (cmd.hasOption(OPTION_MITM)) {
             LOG.info("Running as Man in the Middle");
